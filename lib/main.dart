@@ -3,41 +3,18 @@ import 'dart:async';
 import 'package:bloc/bloc.dart';
 import 'package:currency_converter/app/app.dart';
 import 'package:currency_converter/app/app_bloc_observer.dart';
-import 'package:currency_converter/app/app_config.dart';
-import 'package:currency_converter/core/utils/logger.dart';
-import 'package:firebase_crashlytics/firebase_crashlytics.dart';
+import 'package:currency_converter/core/di/injection.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:hive_flutter/hive_flutter.dart';
-import 'package:intl/date_symbol_data_local.dart';
-
-import 'core/di/injection.dart' as di;
 
 void main() async {
-  runZonedGuarded(
-    () async {
-      WidgetsFlutterBinding.ensureInitialized();
-      await _setupSystemUI();
-      //    await _setupFirebase(config);
-      await Hive.initFlutter();
-      await di.init();
-      Bloc.observer = AppBlocObserver();
-      //    await _setupRemoteConfig();
-      //    await _setupNotifications();
-      await initializeDateFormatting();
-      runApp(const App());
-    },
-    (error, stackTrace) {
-      AppLogger.error('Unhandled error', error: error, stackTrace: stackTrace);
-      if (AppConfig.instance.enableCrashlytics) {
-        FirebaseCrashlytics.instance.recordError(
-          error,
-          stackTrace,
-          fatal: true,
-        );
-      }
-    },
-  );
+  WidgetsFlutterBinding.ensureInitialized();
+  await _setupSystemUI();
+  await Hive.initFlutter();
+  await init();
+  Bloc.observer = AppBlocObserver();
+  runApp(const App());
 }
 
 Future<void> _setupSystemUI() async {
@@ -57,43 +34,3 @@ Future<void> _setupSystemUI() async {
     ),
   );
 }
-
-/*
-Future<void> _setupFirebase(FlavorConfig config) async {
-  await Firebase.initializeApp();
-
-  // Flutter framework errors → Crashlytics
-  FlutterError.onError = (details) {
-    FlutterError.presentError(details);
-    if (config.enableCrashlytics) {
-      FirebaseCrashlytics.instance.recordFlutterFatalError(details);
-    }
-  };
-
-  // Disable Crashlytics in dev to avoid polluting reports
-  await FirebaseCrashlytics.instance.setCrashlyticsCollectionEnabled(
-    config.enableCrashlytics && !kDebugMode,
-  );
-}
-
-
-
-Future<void> _setupRemoteConfig() async {
-  try {
-    final remoteConfig = getIt<RemoteConfigService>();
-    await remoteConfig.initialize();
-  } catch (e, s) {
-    // Remote config failure must never crash the app
-    AppLogger.warning('RemoteConfig init failed', error: e, stackTrace: s);
-  }
-}
-
-Future<void> _setupNotifications() async {
-  try {
-    final notifications = getIt<PushNotificationService>();
-    await notifications.initialize();
-  } catch (e, s) {
-    AppLogger.warning('Notifications init failed', error: e, stackTrace: s);
-  }
-}
-*/

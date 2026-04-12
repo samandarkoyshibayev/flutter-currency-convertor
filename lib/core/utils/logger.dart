@@ -1,17 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'package:logger/logger.dart';
 
-
-/// Centralized logger for the entire app.
-/// Wraps the [logger] package with level filtering based on [AppConfig].
-///
-/// Usage:
-/// ```dart
-/// AppLogger.debug('User loaded');
-/// AppLogger.info('Token refreshed');
-/// AppLogger.warning('Cache miss', error: e);
-/// AppLogger.error('Login failed', error: e, stackTrace: s);
-/// ```
 abstract class AppLogger {
   static Logger? _logger;
 
@@ -31,36 +20,22 @@ abstract class AppLogger {
     return _logger!;
   }
 
-  static bool get _isEnabled {
-    try {
-      return true;// AppConfig.instance.enableLogging;
-    } catch (_) {
-      return kDebugMode;
-    }
-  }
-
   static void debug(String message, {Object? error, StackTrace? stackTrace}) {
-    if (!_isEnabled) return;
+    if (kReleaseMode) return;
     _instance.d(message, error: error, stackTrace: stackTrace);
   }
 
   static void info(String message, {Object? error, StackTrace? stackTrace}) {
-    if (!_isEnabled) return;
+    if (kReleaseMode) return;
     _instance.i(message, error: error, stackTrace: stackTrace);
   }
 
   static void warning(String message, {Object? error, StackTrace? stackTrace}) {
-    if (!_isEnabled) return;
     _instance.w(message, error: error, stackTrace: stackTrace);
   }
 
   static void error(String message, {Object? error, StackTrace? stackTrace}) {
-    // Errors always log regardless of flavor
     _instance.e(message, error: error, stackTrace: stackTrace);
-  }
-
-  static void wtf(String message, {Object? error, StackTrace? stackTrace}) {
-    _instance.f(message, error: error, stackTrace: stackTrace);
   }
 
   static void network({
@@ -69,7 +44,7 @@ abstract class AppLogger {
     int? statusCode,
     dynamic data,
   }) {
-    if (!_isEnabled) return;
+    if (kReleaseMode) return;
     _instance.i(
       '[$method] $url ${statusCode != null ? '→ $statusCode' : ''}',
       error: data,
