@@ -4,7 +4,7 @@ abstract class AppFailure {
 }
 
 class NetworkFailure extends AppFailure {
-  const NetworkFailure([String message = '']) : super(message);
+  const NetworkFailure([super.message = '']);
 }
 
 class TimeoutFailure extends AppFailure {
@@ -21,5 +21,5 @@ class NoDataFailure extends AppFailure {
 }
 
 class UnknownFailure extends AppFailure {
-  const UnknownFailure([String message = '']) : super(message);
+  const UnknownFailure([super.message = '']);
 }
